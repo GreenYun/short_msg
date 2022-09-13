@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut stream = TcpStream::connect(server).await?;
 
-    let header = Header::new(16, Id::EnquireLink, Status::ESME_ROK, 1);
+    let header = Header::new(Id::EnquireLink, Status::ESME_ROK, 1);
 
     {
         // let enquire_link = EnquireLink {};
@@ -56,13 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             address_range: COctet::new("")?,
         };
 
-        let mut bind_transceiver = bincode::encode_to_vec(bind_transceiver, config)?;
-
-        let header = header
-            .advance()
-            .set_id(Id::BindTransceiver)
-            .set_len(16 + bind_transceiver.len() as u32);
-        bind_transceiver.splice(0..0, bincode::encode_to_vec(header.clone(), config)?);
+        let bind_transceiver = Header::new_with_body(Id::BindTransceiver, Status::ESME_ROK, 2, bind_transceiver);
 
         stream.write_all(&bind_transceiver).await?;
 
@@ -82,9 +76,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (resp, _) = bincode::decode_from_slice::<BindTransceiverResp, _>(&resp[16..], config)?;
             println!("{:?}", resp);
 
-            let header = header.advance().set_id(Id::Unbind).set_len(16);
+            let header = Header::new(Id::Unbind, Status::ESME_ROK, 3);
 
-            // let unbind = Unbind {};
             let unbind = bincode::encode_to_vec(header, config)?;
 
             stream.write_all(&unbind).await?;

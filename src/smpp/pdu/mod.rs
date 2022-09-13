@@ -10,37 +10,31 @@ pub struct Header {
 }
 
 impl Header {
-    pub fn new(len: u32, id: command::Id, status: command::Status, seq_num: u32) -> Self {
+    pub fn new(id: command::Id, status: command::Status, seq_num: u32) -> Self {
         Self {
-            command_length: len,
+            command_length: 16,
             command_id: id,
             command_status: status,
             sequence_number: seq_num,
         }
     }
 
-    pub fn advance(self) -> Self {
-        Self {
-            command_length: self.command_length,
-            command_id: self.command_id,
-            command_status: self.command_status,
-            sequence_number: self.sequence_number + 1,
-        }
+    pub fn new_with_body<E>(id: command::Id, status: command::Status, seq_num: u32, body: E) -> Vec<u8>
+    where
+        E: bincode::Encode,
+    {
+        let config = bincode::config::standard().with_big_endian().with_fixed_int_encoding();
+        let v = bincode::encode_to_vec(body, config).unwrap();
+        let header = Header::new(id, status, seq_num).set_len(16 + v.len() as u32);
+        let mut res = bincode::encode_to_vec(header, config).unwrap();
+        res.extend_from_slice(&v);
+        res
     }
 
-    pub fn set_len(self, len: u32) -> Self {
+    fn set_len(self, len: u32) -> Self {
         Self {
             command_length: len,
             command_id: self.command_id,
-            command_status: self.command_status,
-            sequence_number: self.sequence_number + 1,
-        }
-    }
-
-    pub fn set_id(self, id: command::Id) -> Self {
-        Self {
-            command_length: self.command_length,
-            command_id: id,
             command_status: self.command_status,
             sequence_number: self.sequence_number,
         }
