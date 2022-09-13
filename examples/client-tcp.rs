@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:?}", resp);
     }
 
-    let header = header.advance();
+    let header = header.advance().set_id(Id::BindTransceiver);
 
     {
         let bind_transceiver = BindTransceiver {
