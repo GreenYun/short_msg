@@ -71,6 +71,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut resp = buf.to_vec();
         resp.splice(0..0, bincode::encode_to_vec(data_len, config)?);
         let (header_resp, _) = bincode::decode_from_slice::<Header, _>(&resp, config)?;
+        println!("{:?}", header_resp);
+
         if matches!(header.command_id, Id::BindTransceiverResp)
             && matches!(header_resp.command_status, Status::ESME_ROK)
         {
