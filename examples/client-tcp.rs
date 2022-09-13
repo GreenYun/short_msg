@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let bind_transceiver = BindTransceiver {
             system_id: COctet::new("Telegram")?,
-            password: COctet::new("password")?,
+            password: COctet::new("")?,
             system_type: COctet::new("")?,
             interface_version: 0x34,
             addr_ton: 0,
