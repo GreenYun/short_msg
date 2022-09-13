@@ -89,17 +89,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             stream.write_all(&unbind).await?;
 
-            stream.shutdown().await?;
+            let data_len = stream.read_u32().await?;
 
-            // let data_len = stream.read_u32().await?;
+            let mut buf = BytesMut::with_capacity(data_len as usize);
+            stream.read_buf(&mut buf).await?;
 
-            // let mut buf = BytesMut::with_capacity(data_len as usize);
-            // stream.read_buf(&mut buf).await?;
-
-            // let mut resp = buf.to_vec();
-            // resp.splice(0..0, bincode::encode_to_vec(data_len, config)?);
-            // let (resp, _) = bincode::decode_from_slice::<Header, _>(&resp,
-            // config)?; println!("{:?}", resp);
+            let mut resp = buf.to_vec();
+            resp.splice(0..0, bincode::encode_to_vec(data_len, config)?);
+            let (resp, _) = bincode::decode_from_slice::<Header, _>(&resp, config)?;
+            println!("{:?}", resp);
         }
     }
 
