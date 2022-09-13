@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (header_resp, _) = bincode::decode_from_slice::<Header, _>(&resp, config)?;
         println!("{:?}", header_resp);
 
-        if matches!(header.command_id, Id::BindTransceiverResp)
+        if matches!(header_resp.command_id, Id::BindTransceiverResp)
             && matches!(header_resp.command_status, Status::ESME_ROK)
         {
             let (resp, _) = bincode::decode_from_slice::<BindTransceiverResp, _>(&resp[16..], config)?;
