@@ -5,6 +5,8 @@ use std::ffi::CString;
 
 use chrono::{DateTime, Duration, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
 
+/// Time data for *scheduled_delivery_time*, *validity_period*, and
+/// *final_date*.
 #[derive(Clone, Debug)]
 pub enum Time {
     Null,

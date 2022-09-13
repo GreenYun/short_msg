@@ -41,10 +41,5 @@ impl Header {
     }
 }
 
-pub mod prelude {
-    pub use super::{command::*, data_coding::*, typedef::*};
-}
-
 pub mod command;
-pub mod data_coding;
 pub mod typedef;

@@ -3,6 +3,7 @@
 
 /// Defines the Type of Number (TON) to be used in the SME address parameters.
 
+/// The Type of Number (TON) to be used in the SME address parameters.
 #[derive(Clone, Debug, num_derive::FromPrimitive, num_derive::ToPrimitive)]
 #[repr(u8)]
 pub enum Ton {
@@ -56,7 +57,7 @@ impl bincode::Encode for Ton {
     }
 }
 
-/// Defines the Numeric Plan Indicator (NPI) to be used in the SME address
+/// The Numeric Plan Indicator (NPI) to be used in the SME address
 #[derive(Clone, Debug, num_derive::FromPrimitive, num_derive::ToPrimitive)]
 #[repr(u8)]
 pub enum Npi {

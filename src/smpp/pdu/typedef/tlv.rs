@@ -3,6 +3,15 @@
 
 use bincode::enc::write::Writer;
 
+/// TLV fields may be optionally included in a SMPP message. TLVs must always
+/// appear at the end of a SMPP PDU. However, they may be included in any
+/// convenient order and need not be encoded in the order presented in this
+/// document.
+///
+/// For a particular SMPP PDU, the ESME or SMSC (v5: MC) may include some, all
+/// or none of the defined TLVs as required for the particular application
+/// context. For example a paging system may in a SMPP ***submit_sm***
+/// operation, include only the “call-back number” related TLVs.
 #[derive(Clone, Debug)]
 pub struct TLV {
     pub tag: Tag,
@@ -34,6 +43,7 @@ impl bincode::Encode for TLV {
     }
 }
 
+/// SMPP Optional Parameter Tag
 #[derive(Clone, Debug, num_derive::FromPrimitive)]
 #[repr(u16)]
 pub enum Tag {
@@ -143,29 +153,5 @@ impl bincode::Encode for Tag {
         let u = *self as u16;
 
         u.encode(encoder)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::{Tag, TLV};
-
-    #[test]
-    fn test() {
-        let tlv = TLV {
-            tag: Tag::ScInterfaceVersion,
-            len: 0x0001,
-            val: vec![0x34],
-        };
-
-        let conf = bincode::config::standard()
-            .with_big_endian()
-            .with_fixed_int_encoding()
-            .skip_fixed_array_length();
-        let v = bincode::encode_to_vec(tlv, conf).unwrap();
-        println!("{:x?}", v);
-
-        let dec = bincode::decode_from_slice::<TLV, _>(&v, conf).unwrap();
-        println!("{:x?}", dec);
     }
 }

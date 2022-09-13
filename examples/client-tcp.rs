@@ -14,9 +14,8 @@ use tokio::{
     net::TcpStream,
 };
 
-use short_msg::smpp::pdu::{prelude::*, Header};
+use short_msg::smpp::prelude::*;
 
-#[allow(clippy::redundant_clone)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = args().nth(1).expect("At least one argument should be specified.");
@@ -77,13 +76,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{:?}", resp);
 
             let header = Header::new(Id::Unbind, Status::ESME_ROK, 3);
-
             let unbind = bincode::encode_to_vec(header, config)?;
 
             stream.write_all(&unbind).await?;
 
             let data_len = stream.read_u32().await?;
-
             let mut buf = BytesMut::with_capacity(data_len as usize);
             stream.read_buf(&mut buf).await?;
 

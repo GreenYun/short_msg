@@ -160,3 +160,81 @@ impl bincode::Encode for DeliverSmResp {
         Ok(())
     }
 }
+
+/// The deliver_sm is issued by the SMSC (v5: MC) to send a message to an ESME.
+/// Using this command, the SMSC (v5: MC) may route a short message to the ESME
+/// for delivery.
+#[derive(Clone, Debug)]
+pub struct DataSm {
+    pub service_type: COctet,
+    pub source_addr_ton: u8,
+    pub source_addr_npi: u8,
+    pub source_addr: COctet,
+    pub dest_addr_ton: u8,
+    pub dest_addr_npi: u8,
+    pub destination_addr: COctet,
+    pub esm_class: u8,
+    pub registered_delivery: u8,
+    pub data_coding: u8,
+    pub msg_submission_tlv: Vec<TLV>,
+}
+
+impl bincode::Decode for DataSm {
+    fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
+        let service_type = COctet::decode(decoder)?;
+        let source_addr_ton = u8::decode(decoder)?;
+        let source_addr_npi = u8::decode(decoder)?;
+        let source_addr = COctet::decode(decoder)?;
+        let dest_addr_ton = u8::decode(decoder)?;
+        let dest_addr_npi = u8::decode(decoder)?;
+        let destination_addr = COctet::decode(decoder)?;
+        let esm_class = u8::decode(decoder)?;
+        let registered_delivery = u8::decode(decoder)?;
+        let data_coding = u8::decode(decoder)?;
+
+        let msg_submission_tlv = {
+            let mut v = vec![];
+            while let Ok(t) = TLV::decode(decoder) {
+                v.push(t);
+            }
+            v
+        };
+
+        Ok(Self {
+            service_type,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            destination_addr,
+            esm_class,
+            registered_delivery,
+            data_coding,
+            msg_submission_tlv,
+        })
+    }
+}
+
+impl bincode::Encode for DataSm {
+    fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> Result<(), bincode::error::EncodeError> {
+        self.service_type.encode(encoder)?;
+        self.source_addr_ton.encode(encoder)?;
+        self.source_addr_npi.encode(encoder)?;
+        self.source_addr.encode(encoder)?;
+        self.dest_addr_ton.encode(encoder)?;
+        self.dest_addr_npi.encode(encoder)?;
+        self.destination_addr.encode(encoder)?;
+        self.esm_class.encode(encoder)?;
+        self.registered_delivery.encode(encoder)?;
+        self.data_coding.encode(encoder)?;
+
+        for t in &self.msg_submission_tlv {
+            t.encode(encoder)?;
+        }
+
+        Ok(())
+    }
+}
+
+pub type DataSmResp = DeliverSmResp;
