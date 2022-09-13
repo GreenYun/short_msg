@@ -19,7 +19,7 @@ use short_msg::smpp::pdu::{prelude::*, Header};
 #[allow(clippy::redundant_clone)]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let server = args().next().expect("At least one argument should be specified.");
+    let server = args().nth(1).expect("At least one argument should be specified.");
 
     let config = bincode::config::standard().with_big_endian().with_fixed_int_encoding();
 
