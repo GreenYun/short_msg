@@ -45,12 +45,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:?}", resp);
     }
 
-    let header = header.advance().set_id(Id::BindTransceiver);
-
     {
         let bind_transceiver = BindTransceiver {
             system_id: COctet::new("Telegram")?,
-            password: COctet::new("")?,
+            password: COctet::new("password")?,
             system_type: COctet::new("")?,
             interface_version: 0x34,
             addr_ton: 0,
@@ -59,6 +57,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let mut bind_transceiver = bincode::encode_to_vec(bind_transceiver, config)?;
+
+        let header = header
+            .advance()
+            .set_id(Id::BindTransceiver)
+            .set_len(16 + bind_transceiver.len() as u32);
         bind_transceiver.splice(0..0, bincode::encode_to_vec(header.clone(), config)?);
 
         stream.write_all(&bind_transceiver).await?;
@@ -79,7 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (resp, _) = bincode::decode_from_slice::<BindTransceiverResp, _>(&resp[16..], config)?;
             println!("{:?}", resp);
 
-            let header = header.advance().set_id(Id::Unbind);
+            let header = header.advance().set_id(Id::Unbind).set_len(16);
 
             // let unbind = Unbind {};
             let unbind = bincode::encode_to_vec(header, config)?;

@@ -28,6 +28,15 @@ impl Header {
         }
     }
 
+    pub fn set_len(self, len: u32) -> Self {
+        Self {
+            command_length: len,
+            command_id: self.command_id,
+            command_status: self.command_status,
+            sequence_number: self.sequence_number + 1,
+        }
+    }
+
     pub fn set_id(self, id: command::Id) -> Self {
         Self {
             command_length: self.command_length,
