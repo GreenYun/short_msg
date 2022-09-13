@@ -80,6 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{:?}", resp);
 
             let header = header.advance().set_id(Id::Unbind);
+
             // let unbind = Unbind {};
             let unbind = bincode::encode_to_vec(header, config)?;
 
@@ -96,6 +97,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{:?}", resp);
         }
     }
+
+    stream.shutdown().await?;
 
     Ok(())
 }
