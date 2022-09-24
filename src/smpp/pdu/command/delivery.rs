@@ -35,6 +35,8 @@ pub struct DeliverSm {
 
 impl bincode::Decode for DeliverSm {
     fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
+        use bincode::de::read::Reader;
+
         let service_type = COctet::decode(decoder)?;
         let source_addr_ton = u8::decode(decoder)?;
         let source_addr_npi = u8::decode(decoder)?;
@@ -53,11 +55,8 @@ impl bincode::Decode for DeliverSm {
         let sm_default_msg_id = u8::decode(decoder)?;
         let sm_length = u8::decode(decoder)?;
 
-        let mut short_message = vec![];
-        for _ in 0..sm_length {
-            let u = u8::decode(decoder)?;
-            short_message.push(u);
-        }
+        let mut short_message = vec![Default::default(); sm_length.into()];
+        decoder.reader().read(&mut short_message)?;
 
         let msg_delivery_tlv = {
             let mut v = vec![];

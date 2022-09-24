@@ -1,8 +1,6 @@
 //Copyright (c) 2022 GreenYun Organization
 //SPDX-License-Identifier: MIT
 
-use bincode::enc::write::Writer;
-
 /// TLV fields may be optionally included in a SMPP message. TLVs must always
 /// appear at the end of a SMPP PDU. However, they may be included in any
 /// convenient order and need not be encoded in the order presented in this
@@ -21,15 +19,13 @@ pub struct TLV {
 
 impl bincode::Decode for TLV {
     fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
+        use bincode::de::read::Reader;
+
         let tag = Tag::decode(decoder)?;
         let len = u16::decode(decoder)?;
 
-        let mut val = Vec::with_capacity(len.into());
-
-        for _ in 0..len {
-            let u = u8::decode(decoder)?;
-            val.push(u);
-        }
+        let mut val = vec![Default::default(); len.into()];
+        decoder.reader().read(&mut val)?;
 
         Ok(Self { tag, len, val })
     }
@@ -37,6 +33,8 @@ impl bincode::Decode for TLV {
 
 impl bincode::Encode for TLV {
     fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> Result<(), bincode::error::EncodeError> {
+        use bincode::enc::write::Writer;
+
         self.tag.encode(encoder)?;
         self.len.encode(encoder)?;
         encoder.writer().write(&self.val)
