@@ -118,8 +118,7 @@ impl bincode::Encode for SubmitSm {
 
 #[derive(Clone, Debug)]
 pub struct SubmitSmResp {
-    message_id: COctet,
-
+    pub message_id: COctet,
     pub msg_submission_resp_tlv: Vec<TLV>,
 }
 
@@ -153,3 +152,82 @@ impl bincode::Encode for SubmitSmResp {
         Ok(())
     }
 }
+
+/// The ***data_sm*** operation is similar to the submit_sm in that it provides
+/// a means to submit a mobile-terminated message. However, data_sm is intended
+/// for packet-based applications such as WAP in that it features a reduced PDU
+/// body containing fields relevant to WAP or packet-based applications.
+#[derive(Clone, Debug)]
+pub struct DataSm {
+    pub service_type: COctet,
+    pub source_addr_ton: u8,
+    pub source_addr_npi: u8,
+    pub source_addr: COctet,
+    pub dest_addr_ton: u8,
+    pub dest_addr_npi: u8,
+    pub destination_addr: COctet,
+    pub esm_class: u8,
+    pub registered_delivery: u8,
+    pub data_coding: u8,
+    pub msg_submission_tlv: Vec<TLV>,
+}
+
+impl bincode::Decode for DataSm {
+    fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
+        let service_type = COctet::decode(decoder)?;
+        let source_addr_ton = u8::decode(decoder)?;
+        let source_addr_npi = u8::decode(decoder)?;
+        let source_addr = COctet::decode(decoder)?;
+        let dest_addr_ton = u8::decode(decoder)?;
+        let dest_addr_npi = u8::decode(decoder)?;
+        let destination_addr = COctet::decode(decoder)?;
+        let esm_class = u8::decode(decoder)?;
+        let registered_delivery = u8::decode(decoder)?;
+        let data_coding = u8::decode(decoder)?;
+
+        let msg_submission_tlv = {
+            let mut v = vec![];
+            while let Ok(t) = TLV::decode(decoder) {
+                v.push(t);
+            }
+            v
+        };
+
+        Ok(Self {
+            service_type,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            destination_addr,
+            esm_class,
+            registered_delivery,
+            data_coding,
+            msg_submission_tlv,
+        })
+    }
+}
+
+impl bincode::Encode for DataSm {
+    fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> Result<(), bincode::error::EncodeError> {
+        self.service_type.encode(encoder)?;
+        self.source_addr_ton.encode(encoder)?;
+        self.source_addr_npi.encode(encoder)?;
+        self.source_addr.encode(encoder)?;
+        self.dest_addr_ton.encode(encoder)?;
+        self.dest_addr_npi.encode(encoder)?;
+        self.destination_addr.encode(encoder)?;
+        self.esm_class.encode(encoder)?;
+        self.registered_delivery.encode(encoder)?;
+        self.data_coding.encode(encoder)?;
+
+        for t in &self.msg_submission_tlv {
+            t.encode(encoder)?;
+        }
+
+        Ok(())
+    }
+}
+
+pub type DataSmResp = SubmitSmResp;
