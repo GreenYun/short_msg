@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 //! Message delivery operations provide the means of delivering short messages
 //! from a MC to an ESME. These messages typically originate from mobile

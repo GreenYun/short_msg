@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 use std::collections::HashMap;
 
@@ -19,6 +19,7 @@ lazy_static::lazy_static! {
     static ref FORWARD_LOOKUP: HashMap<char, u8> = {
         let mut forward_lookup: HashMap<char, u8> = HashMap::new();
         REV_LOOKUP.into_iter().enumerate().for_each(|(i, u)| {
+            #[allow(clippy::cast_possible_truncation)]
             forward_lookup.insert(char::from_u32(u).unwrap_or_default(), i as u8);
         });
 
@@ -26,6 +27,7 @@ lazy_static::lazy_static! {
     };
 }
 
+#[must_use]
 pub fn decode(v: &[u8]) -> String {
     let mut dec = BitReader::endian(v, LittleEndian);
     let mut parsed = vec![];
@@ -50,7 +52,8 @@ pub fn decode(v: &[u8]) -> String {
     s.replace('\u{00A0}', "1)")
 }
 
-pub fn encode(s: String) -> Vec<u8> {
+#[must_use]
+pub fn encode(s: &str) -> Vec<u8> {
     let ret = vec![];
     let mut enc = BitWriter::endian(ret, LittleEndian);
 

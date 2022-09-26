@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 extern crate bincode;
 extern crate bytes;
@@ -55,7 +55,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             address_range: COctet::new("")?,
         };
 
-        let bind_transceiver = Header::new_with_body(Id::BindTransceiver, Status::ESME_ROK, 2, bind_transceiver);
+        let bind_transceiver =
+            Header::new_with_body(Id::BindTransceiver, Status::ESME_ROK, 2, bind_transceiver).unwrap();
 
         stream.write_all(&bind_transceiver).await?;
 

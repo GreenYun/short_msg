@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 /// Defines the Type of Number (TON) to be used in the SME address parameters.
 
@@ -30,7 +30,7 @@ impl From<Ton> for u8 {
     fn from(x: Ton) -> Self {
         use num_traits::ToPrimitive;
 
-        x.to_u8().unwrap()
+        x.to_u8().unwrap_or_default()
     }
 }
 
@@ -44,7 +44,7 @@ impl bincode::Decode for Ton {
                 allowed: bincode::error::AllowedEnumVariants::Allowed(&[
                     0b00000000, 0b00000001, 0b00000010, 0b00000011, 0b00000100, 0b00000101, 0b00000110,
                 ]),
-                found: u as u32,
+                found: u32::from(u),
             })
     }
 }
@@ -93,7 +93,7 @@ impl From<Npi> for u8 {
     fn from(x: Npi) -> Self {
         use num_traits::ToPrimitive;
 
-        x.to_u8().unwrap()
+        x.to_u8().unwrap_or_default()
     }
 }
 
@@ -108,7 +108,7 @@ impl bincode::Decode for Npi {
                     0b00000000, 0b00000001, 0b00000011, 0b00000100, 0b00000110, 0b00001000, 0b00001001, 0b00001010,
                     0b00001110, 0b00010010,
                 ]),
-                found: u as u32,
+                found: u32::from(u),
             })
     }
 }

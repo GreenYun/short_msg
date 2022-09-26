@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 #[derive(Clone, Debug, bincode::Decode, bincode::Encode)]
 pub struct Header {
@@ -10,7 +10,8 @@ pub struct Header {
 }
 
 impl Header {
-    pub fn new(id: command::Id, status: command::Status, seq_num: u32) -> Self {
+    #[must_use]
+    pub const fn new(id: command::Id, status: command::Status, seq_num: u32) -> Self {
         Self {
             command_length: 16,
             command_id: id,
@@ -19,19 +20,27 @@ impl Header {
         }
     }
 
-    pub fn new_with_body<E>(id: command::Id, status: command::Status, seq_num: u32, body: E) -> Vec<u8>
+    #[allow(clippy::missing_errors_doc)]
+    pub fn new_with_body<E>(
+        id: command::Id,
+        status: command::Status,
+        seq_num: u32,
+        body: E,
+    ) -> Result<Vec<u8>, bincode::error::EncodeError>
     where
         E: bincode::Encode,
     {
         let config = bincode::config::standard().with_big_endian().with_fixed_int_encoding();
-        let v = bincode::encode_to_vec(body, config).unwrap();
-        let header = Header::new(id, status, seq_num).set_len(16 + v.len() as u32);
-        let mut res = bincode::encode_to_vec(header, config).unwrap();
+        let v = bincode::encode_to_vec(body, config)?;
+
+        #[allow(clippy::cast_possible_truncation)]
+        let header = Self::new(id, status, seq_num).set_len(16 + v.len() as u32);
+        let mut res = bincode::encode_to_vec(header, config)?;
         res.extend_from_slice(&v);
-        res
+        Ok(res)
     }
 
-    fn set_len(self, len: u32) -> Self {
+    const fn set_len(self, len: u32) -> Self {
         Self {
             command_length: len,
             command_id: self.command_id,

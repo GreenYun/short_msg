@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 //! These operations are used to establish and maintain a SMPP session.
 
@@ -85,11 +85,7 @@ pub mod bind {
     impl bincode::Encode for BindResp {
         fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> Result<(), bincode::error::EncodeError> {
             self.system_id.encode(encoder)?;
-            if let Some(v) = &self.sc_interface_version {
-                v.encode(encoder)
-            } else {
-                Ok(())
-            }
+            self.sc_interface_version.as_ref().map_or(Ok(()), |v| v.encode(encoder))
         }
     }
 

@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 use std::convert::TryInto;
 
@@ -48,7 +48,7 @@ impl From<DataCoding> for u8 {
     fn from(x: DataCoding) -> Self {
         use num_traits::ToPrimitive;
 
-        x.to_u8().unwrap()
+        x.to_u8().unwrap_or_default()
     }
 }
 
@@ -60,7 +60,7 @@ impl bincode::Decode for DataCoding {
             .map_err(|u: u8| bincode::error::DecodeError::UnexpectedVariant {
                 type_name: "DataCoding",
                 allowed: bincode::error::AllowedEnumVariants::Allowed(&[]),
-                found: u as u32,
+                found: u32::from(u),
             })
     }
 }

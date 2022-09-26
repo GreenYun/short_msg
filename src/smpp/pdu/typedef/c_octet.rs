@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 use std::ffi::{CStr, CString, NulError};
 
@@ -23,6 +23,12 @@ impl COctet {
     /// bytes to construct a new string, ensuring that there is a trailing 0
     /// byte. This trailing 0 byte will be appended by this function; the
     /// provided data should not contain any 0 bytes in it.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the supplied bytes contain an
+    /// internal 0 byte. The NulError returned will contain the bytes as well as
+    /// the position of the nul byte.
     pub fn new<T>(t: T) -> Result<Self, NulError>
     where
         T: Into<Vec<u8>>,
@@ -33,11 +39,14 @@ impl COctet {
     }
 
     /// Creates a new C-compatible string from a [`CString`].
+    #[must_use]
     pub fn from_c_string(s: CString) -> Self {
         Self { inner: s }
     }
 
     /// Unwrap the [`CString`].
+    #[allow(clippy::missing_const_for_fn)]
+    #[must_use]
     pub fn as_c_string(self) -> CString {
         self.inner
     }

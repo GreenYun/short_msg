@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 /// TLV fields may be optionally included in a SMPP message. TLVs must always
 /// appear at the end of a SMPP PDU. However, they may be included in any
@@ -135,14 +135,11 @@ impl bincode::Decode for Tag {
     fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
         let u = u16::decode(decoder)?;
         let r = num_traits::FromPrimitive::from_u16(u);
-        match r {
-            None => Err(bincode::error::DecodeError::UnexpectedVariant {
-                type_name: "Tag",
-                allowed: bincode::error::AllowedEnumVariants::Allowed(&[]),
-                found: u as u32,
-            }),
-            Some(t) => Ok(t),
-        }
+        r.ok_or(bincode::error::DecodeError::UnexpectedVariant {
+            type_name: "Tag",
+            allowed: bincode::error::AllowedEnumVariants::Allowed(&[]),
+            found: u32::from(u),
+        })
     }
 }
 

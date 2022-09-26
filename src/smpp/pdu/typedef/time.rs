@@ -1,5 +1,5 @@
-//Copyright (c) 2022 GreenYun Organization
-//SPDX-License-Identifier: MIT
+// Copyright (c) 2022 GreenYun Organization
+// SPDX-License-Identifier: MIT
 
 use std::ffi::CString;
 
@@ -20,7 +20,7 @@ impl bincode::Decode for Time {
 
         let s = COctet::decode(decoder)?.as_c_string().into_bytes();
         if s.is_empty() {
-            return Ok(Time::Null);
+            return Ok(Self::Null);
         }
 
         if s.len() != 16 {
@@ -36,30 +36,30 @@ impl bincode::Decode for Time {
                 let hh = (s[6] - b'0') * 10 + s[7] - b'0';
                 let mm = (s[8] - b'0') * 10 + s[9] - b'0';
                 let ss = (s[10] - b'0') * 10 + s[11] - b'0';
-                let period = chrono::Duration::days(YY as i64 * 365 + MM as i64 * 30 + DD as i64)
-                    + chrono::Duration::hours(hh as i64)
-                    + chrono::Duration::minutes(mm as i64)
-                    + chrono::Duration::seconds(ss as i64);
-                Ok(Time::Relative(period))
+                let period = chrono::Duration::days(i64::from(YY) * 365 + i64::from(MM) * 30 + i64::from(DD))
+                    + chrono::Duration::hours(i64::from(hh))
+                    + chrono::Duration::minutes(i64::from(mm))
+                    + chrono::Duration::seconds(i64::from(ss));
+                Ok(Self::Relative(period))
             }
 
             #[allow(non_snake_case)]
             &b'+' | &b'-' => {
                 let YY = (s[0] - b'0') * 10 + s[1] - b'0';
-                let YY = YY as i32 + 2000;
+                let YY = i32::from(YY) + 2000;
                 let MM = (s[2] - b'0') * 10 + s[3] - b'0';
                 let DD = (s[4] - b'0') * 10 + s[5] - b'0';
                 let hh = (s[6] - b'0') * 10 + s[7] - b'0';
                 let mm = (s[8] - b'0') * 10 + s[9] - b'0';
                 let ss = (s[10] - b'0') * 10 + s[11] - b'0';
-                let t = (s[12] - b'0') as u32;
+                let t = u32::from(s[12] - b'0');
                 let datetime = NaiveDateTime::new(
-                    NaiveDate::from_ymd(YY, MM as u32, DD as u32),
-                    NaiveTime::from_hms_micro(hh as u32, mm as u32, ss as u32, t * 100),
+                    NaiveDate::from_ymd(YY, u32::from(MM), u32::from(DD)),
+                    NaiveTime::from_hms_micro(u32::from(hh), u32::from(mm), u32::from(ss), t * 100),
                 );
                 let offset = {
                     let h = (s[13] - b'0') * 10 + s[14] - b'0';
-                    let secs = (h as i32) * 15 * 60;
+                    let secs = i32::from(h) * 15 * 60;
                     if s[15] == b'+' {
                         FixedOffset::east(secs)
                     } else {
@@ -68,7 +68,7 @@ impl bincode::Decode for Time {
                 };
                 let datetime = DateTime::<FixedOffset>::from_local(datetime, offset);
 
-                Ok(Time::Absolute(datetime))
+                Ok(Self::Absolute(datetime))
             }
 
             _ => Err(bincode::error::DecodeError::OtherString(
@@ -83,8 +83,8 @@ impl bincode::Encode for Time {
         use super::COctet;
 
         let v = match self {
-            Time::Null => COctet::new("").unwrap(),
-            Time::Absolute(t) => {
+            Self::Null => COctet::new("").unwrap(),
+            Self::Absolute(t) => {
                 let s = format!("{}", t.format("%y%m%d%H%M%S0%f"));
                 let zone = t.offset().local_minus_utc() / 900;
                 let (zone, sign) = match zone {
@@ -98,7 +98,7 @@ impl bincode::Encode for Time {
                 COctet::new(v).unwrap()
             }
             #[allow(non_snake_case)]
-            Time::Relative(t) => {
+            Self::Relative(t) => {
                 let ss = t.num_seconds();
                 let (DD, ss) = (ss / 86400, ss % 86400);
                 let (YY, DD) = (DD / 365 % 100, DD % 365);
