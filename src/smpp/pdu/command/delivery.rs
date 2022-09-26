@@ -58,13 +58,10 @@ impl bincode::Decode for DeliverSm {
         let mut short_message = vec![Default::default(); sm_length.into()];
         decoder.reader().read(&mut short_message)?;
 
-        let msg_delivery_tlv = {
-            let mut v = vec![];
-            while let Ok(t) = TLV::decode(decoder) {
-                v.push(t);
-            }
-            v
-        };
+        let mut msg_delivery_tlv = vec![];
+        while let Ok(t) = TLV::decode(decoder) {
+            msg_delivery_tlv.push(t);
+        }
 
         Ok(Self {
             service_type,

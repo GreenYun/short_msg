@@ -203,13 +203,10 @@ impl bincode::Decode for AlertNotification {
         let esme_addr_npi = u8::decode(decoder)?;
         let esme_addr = COctet::decode(decoder)?;
 
-        let ms_availability_status = {
-            let mut v = vec![];
-            while let Ok(t) = TLV::decode(decoder) {
-                v.push(t);
-            }
-            v
-        };
+        let mut ms_availability_status = vec![];
+        while let Ok(t) = TLV::decode(decoder) {
+            ms_availability_status.push(t);
+        }
 
         Ok(Self {
             source_addr_ton,
