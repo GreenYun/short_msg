@@ -119,6 +119,8 @@ impl bincode::Encode for SubmitSm {
 #[derive(Clone, Debug)]
 pub struct SubmitSmResp {
     pub message_id: COctet,
+
+    #[cfg(feature = "v5")]
     pub msg_submission_resp_tlv: Vec<TLV>,
 }
 
@@ -126,16 +128,15 @@ impl bincode::Decode for SubmitSmResp {
     fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
         let message_id = COctet::decode(decoder)?;
 
-        let msg_submission_resp_tlv = {
-            let mut v = vec![];
-            while let Ok(t) = TLV::decode(decoder) {
-                v.push(t);
-            }
-            v
-        };
+        let mut msg_submission_resp_tlv = vec![];
+        while let Ok(t) = TLV::decode(decoder) {
+            msg_submission_resp_tlv.push(t);
+        }
 
         Ok(Self {
             message_id,
+
+            #[cfg(feature = "v5")]
             msg_submission_resp_tlv,
         })
     }
@@ -145,6 +146,7 @@ impl bincode::Encode for SubmitSmResp {
     fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> Result<(), bincode::error::EncodeError> {
         self.message_id.encode(encoder)?;
 
+        #[cfg(feature = "v5")]
         for t in &self.msg_submission_resp_tlv {
             t.encode(encoder)?;
         }
@@ -185,13 +187,10 @@ impl bincode::Decode for DataSm {
         let registered_delivery = u8::decode(decoder)?;
         let data_coding = u8::decode(decoder)?;
 
-        let msg_submission_tlv = {
-            let mut v = vec![];
-            while let Ok(t) = TLV::decode(decoder) {
-                v.push(t);
-            }
-            v
-        };
+        let mut msg_submission_tlv = vec![];
+        while let Ok(t) = TLV::decode(decoder) {
+            msg_submission_tlv.push(t);
+        }
 
         Ok(Self {
             service_type,

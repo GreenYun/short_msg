@@ -122,6 +122,7 @@ impl bincode::Encode for DeliverSm {
 pub struct DeliverSmResp {
     pub message_id: COctet,
 
+    #[cfg(feature = "v5")]
     pub msg_delivery_resp_tlv: Vec<TLV>,
 }
 
@@ -129,16 +130,15 @@ impl bincode::Decode for DeliverSmResp {
     fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> Result<Self, bincode::error::DecodeError> {
         let message_id = COctet::decode(decoder)?;
 
-        let msg_delivery_resp_tlv = {
-            let mut v = vec![];
-            while let Ok(t) = TLV::decode(decoder) {
-                v.push(t);
-            }
-            v
-        };
+        let mut msg_delivery_resp_tlv = vec![];
+        while let Ok(t) = TLV::decode(decoder) {
+            msg_delivery_resp_tlv.push(t);
+        }
 
         Ok(Self {
             message_id,
+
+            #[cfg(feature = "v5")]
             msg_delivery_resp_tlv,
         })
     }
