@@ -54,8 +54,8 @@ pub fn decode(v: &[u8]) -> String {
 
 #[must_use]
 pub fn encode(s: &str) -> Vec<u8> {
-    let ret = vec![];
-    let mut enc = BitWriter::endian(ret, LittleEndian);
+    let buf = vec![];
+    let mut enc = BitWriter::endian(buf, LittleEndian);
 
     s.replace("1)", "\u{00A0}")
         .chars()
